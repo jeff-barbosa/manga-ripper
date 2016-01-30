@@ -1,0 +1,3 @@
+# Put here the links for the mangas you want to rip
+# It's important to paste the manga main page (where every chapter is listed)
+# For example, for the manga "Ansatsu Kyoushitsu" the link would be: http://www.mangahere.co/manga/ansatsu_kyoushitsu/
