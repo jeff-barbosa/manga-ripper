@@ -32,8 +32,8 @@ sub bootstrap {
 		if ($_ =~ /\(\Q$sites{mangahere}\E(.+)\/,\s*(\d*),\s*(\d*)\)/i) {
 			# Get the information
 			$manga_title = $1;
-			$start_chapter = $2 if(defined($2));
-			$end_chapter = $3 if (defined($3));
+			$start_chapter = ($2 - 1) if(defined($2));
+			$end_chapter = ($3 - 1) if (defined($3));
 
 			# Remove trailing slash
 			$manga_title = $1 if ($manga_title =~ /(.+)\/$/);
@@ -81,13 +81,13 @@ sub ripFromMangahere {
 		foreach ($ua->links()) {
 			if ($_->url() =~ /$url.*\/c([0-9.]+)/) {
 				print "Chapter ". $1 .": ". $_->url() ."\n" if ($verbose);
-				push(@manga_chapters, {chapter => $1, url => $_->url() });
+				unshift(@manga_chapters, {chapter => $1, url => $_->url() });
 			}
 		}
 
 		print "Found ". @manga_chapters ." chapters\n";
 
-		$manga->{ch_start} = 1 unless(defined($manga->{ch_start}) && $manga->{ch_start});
+		$manga->{ch_start} = 0 unless(defined($manga->{ch_start}) && $manga->{ch_start});
 		$manga->{ch_end} = scalar(@manga_chapters) unless (defined($manga->{ch_end}) && $manga->{ch_end});
 
 		# Making sure the limits (if any) for the chapters are within the constraint
@@ -107,8 +107,8 @@ sub ripFromMangahere {
 			return;
 		}
 
-		for (my $index = $manga->{ch_start}; $index <= $manga->{ch_end}; $index++) {
-			my $current_chapter = $manga_chapters[-$index];
+		for (my $index = $manga->{ch_start}; $index < $manga->{ch_end}; $index++) {
+			my $current_chapter = $manga_chapters[$index];
 
 			my $chapter_folder = $download_folder.'/'.$manga->{title}.'/'.$current_chapter->{chapter};
 			mkdir($chapter_folder);
