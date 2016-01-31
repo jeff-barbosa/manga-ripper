@@ -18,6 +18,7 @@ my %sites = (
 sub bootstrap {
 	# We're just an ordinary user, sir
 	$ua = WWW::Mechanize->new(
+		autocheck => 0,
 		agent => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36'
 	);
 
