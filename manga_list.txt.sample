@@ -1,3 +1,20 @@
 # Put here the links for the mangas you want to rip
-# It's important to paste the manga main page (where every chapter is listed)
-# For example, for the manga "Ansatsu Kyoushitsu" the link would be: http://www.mangahere.co/manga/ansatsu_kyoushitsu/
+# FORMAT:
+#
+# (<series page>, [starting chapter], [ending chapter])
+#
+# EXAMPLES:
+#
+# To download all chapters of the series "Ansatsu Kyoushitsu":
+# (http://www.mangahere.co/manga/ansatsu_kyoushitsu/,,)
+#
+# To download from chapter 10 until chapter 25:
+# (http://www.mangahere.co/manga/ansatsu_kyoushitsu/,10,25)
+#
+# To download starting from chapter 30 until the last chapter
+# (http://www.mangahere.co/manga/ansatsu_kyoushitsu/,30,)
+#
+# To download from the first chapter until chapter 10
+# (http://www.mangahere.co/manga/ansatsu_kyoushitsu/,,10)
+#
+# *It's important to paste the manga main page (where every chapter is listed)

@@ -16,6 +16,7 @@ my %sites = (
 );
 
 sub bootstrap {
+	print "Boostrasping...\n";
 	# We're just an ordinary user, sir
 	$ua = WWW::Mechanize->new(
 		autocheck => 0,
@@ -25,12 +26,24 @@ sub bootstrap {
 	# Parse the URLs
 	open (my $fh, '<', $filename) or die ($!);
 	while (<$fh>) {
+		my ($manga_title, $start_chapter, $end_chapter) = undef;
 		next if ($_ =~ /^#/);
 		# Mangahere URL
-		if ($_ =~ /\Q$sites{mangahere}\E(.+)\/?$/i) {
-			my $manga_title = $1;
+		if ($_ =~ /\(\Q$sites{mangahere}\E(.+)\/,\s*(\d*),\s*(\d*)\)/i) {
+			# Get the information
+			$manga_title = $1;
+			$start_chapter = $2 if(defined($2));
+			$end_chapter = $3 if (defined($3));
+
+			# Remove trailing slash
 			$manga_title = $1 if ($manga_title =~ /(.+)\/$/);
-			push(@mangas, { title => $manga_title, site => 'mangahere' });
+
+			push(@mangas, { 
+				title => $manga_title, 
+				site => 'mangahere', 
+				ch_start => $start_chapter,
+				ch_end => $end_chapter
+			});
 		}
 	}
 	close($fh);
@@ -47,7 +60,7 @@ sub main {
 	foreach my $manga (@mangas) {
 		print "Attempting to download: ". $manga->{title} ."\n";
 		if ($manga->{site} eq 'mangahere') {
-			ripFromMangahere($manga->{title});
+			ripFromMangahere($manga);
 		}
 	}
 }
@@ -56,12 +69,12 @@ sub main {
 # It logs any error (missing chapter/pages) on the log file
 sub ripFromMangahere {
 	my $manga = shift;
-	mkdir($download_folder.'/'.$manga) unless (-d $download_folder .'/'. $manga);
-	my $url = $sites{mangahere} . $manga;
+	mkdir($download_folder.'/'.$manga->{title}) unless (-d $download_folder.'/'.$manga->{title});
+	my $url = $sites{mangahere} . $manga->{title};
 	my $response = $ua->get($url);
 
 	if ($response) {
-		print "Chapter list for ". $manga ."\n";
+		print "Chapter list for ". $manga->{title} ."\n";
 		my @manga_chapters;
 
 		# Get links for each chapter
@@ -74,21 +87,42 @@ sub ripFromMangahere {
 
 		print "Found ". @manga_chapters ." chapters\n";
 
-		# Parse each chapter
-		foreach (@manga_chapters) {
-			my $chapter_folder = $download_folder.'/'.$manga.'/'.$_->{chapter};
+		$manga->{ch_start} = 1 unless(defined($manga->{ch_start}) && $manga->{ch_start});
+		$manga->{ch_end} = scalar(@manga_chapters) unless (defined($manga->{ch_end}) && $manga->{ch_end});
+
+		# Making sure the limits (if any) for the chapters are within the constraint
+		if ($manga->{ch_start} > @manga_chapters) {
+			print "You want to download starting from chapter ". $manga->{ch_start} .", but there's only ". @manga_chapters ." available\n";
+			print "Skipping this manga...\n";
+			return;
+		}
+		if ($manga->{ch_end} > @manga_chapters) {
+			print "You want to download until chapter ". $manga->{ch_end} .", but there's only ". @manga_chapters ." available\n";
+			print "Changing to adapt to the current number of chapters...\n";
+			$manga->{ch_end} = scalar(@manga_chapters);
+		}
+		if ($manga->{ch_start} > $manga->{ch_end}) {
+			print "You're trying to download from a bigger chapter number to a smaller one. Messed up config?\n";
+			print "Skipping this manga...\n";
+			return;
+		}
+
+		for (my $index = $manga->{ch_start}; $index <= $manga->{ch_end}; $index++) {
+			my $current_chapter = $manga_chapters[-$index];
+
+			my $chapter_folder = $download_folder.'/'.$manga->{title}.'/'.$current_chapter->{chapter};
 			mkdir($chapter_folder);
 
-			my $visit = $ua->get($_->{url});
+			my $visit = $ua->get($current_chapter->{url});
 
 			# Get number of pages
 			my $num_pages;
 			if ($visit) {
 				if ($visit->decoded_content() =~ /(\d+)<\/option>\s*<\/select>/) {
-					print "Number of pages for chapter ". $_->{chapter} .": ". $1 ."\n";
+					print "Number of pages for chapter ". $current_chapter->{chapter} .": ". $1 ."\n";
 					$num_pages = $1;
 				} else {
-					logMsg("[". $manga ."]Couldn't find the number of pages for chapter ". $_->{chapter} ."\n");
+					logMsg("[". $manga ."]Couldn't find the number of pages for chapter ". $current_chapter->{chapter} ."\n");
 					next;
 				}
 			}
@@ -97,7 +131,7 @@ sub ripFromMangahere {
 
 			# Download pages
 			for (my $i = 1; $i <= $num_pages; $i++) {
-				my $page_url = $_->{url} . $i .'.html';
+				my $page_url = $current_chapter->{url} . $i .'.html';
 				my $response = $ua->get($page_url);
 				if ($response) {
 					my $image_obj = $ua->find_image(alt_regex => qr/page \d+$/i);
@@ -108,10 +142,10 @@ sub ripFromMangahere {
 						print $fh $image->content();
 						close($fh);
 					} else {
-						logMsg("[". $manga ." | Ch ". $_->{chapter} ."]Error: Couldn't find image on ". $i ." page link\n");
+						logMsg("[". $manga ." | Ch ". $current_chapter->{chapter} ."]Error: Couldn't find image on ". $i ." page link\n");
 					}
 				} else {
-					logMsg("[". $manga ." | Ch ". $_->{chapter} ."]Error: Couldn't download page ". $i ."\n");
+					logMsg("[". $manga ." | Ch ". $current_chapter->{chapter} ."]Error: Couldn't download page ". $i ."\n");
 				}
 			}
 
