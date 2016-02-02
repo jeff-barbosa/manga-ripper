@@ -32,8 +32,8 @@ sub bootstrap {
 		if ($_ =~ /\(\Q$sites{mangahere}\E(.+)\/,\s*(\d*),\s*(\d*)\)/i) {
 			# Get the information
 			$manga_title = $1;
-			$start_chapter = ($2 - 1) if(defined($2));
-			$end_chapter = ($3 - 1) if (defined($3));
+			$start_chapter = ($2 - 1) if(defined($2) && $2 ne "");
+			$end_chapter = ($3 - 1) if (defined($3) && $3 ne "");
 
 			# Remove trailing slash
 			$manga_title = $1 if ($manga_title =~ /(.+)\/$/);
