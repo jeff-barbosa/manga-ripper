@@ -139,6 +139,7 @@ sub ripFromMangahere {
 						print "Downloading page: ". $i ."\n" if ($verbose);
 						my $image = $ua->get($image_obj->url());
 						open (my $fh, '>', $chapter_folder .'/'. $i .'.jpg');
+						binmode($fh);
 						print $fh $image->content();
 						close($fh);
 					} else {
