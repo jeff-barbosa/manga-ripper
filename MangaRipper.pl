@@ -122,7 +122,7 @@ sub ripFromMangahere {
 					print "Number of pages for chapter ". $current_chapter->{chapter} .": ". $1 ."\n";
 					$num_pages = $1;
 				} else {
-					logMsg("[". $manga ."]Couldn't find the number of pages for chapter ". $current_chapter->{chapter} ."\n");
+					logMsg("[". $manga->{title} ."]Couldn't find the number of pages for chapter ". $current_chapter->{chapter} ."\n");
 					next;
 				}
 			}
@@ -143,17 +143,17 @@ sub ripFromMangahere {
 						print $fh $image->content();
 						close($fh);
 					} else {
-						logMsg("[". $manga ." | Ch ". $current_chapter->{chapter} ."]Error: Couldn't find image on ". $i ." page link\n");
+						logMsg("[". $manga->{title} ." | Ch ". $current_chapter->{chapter} ."]Error: Couldn't find image on ". $i ." page link\n");
 					}
 				} else {
-					logMsg("[". $manga ." | Ch ". $current_chapter->{chapter} ."]Error: Couldn't download page ". $i ."\n");
+					logMsg("[". $manga->{title} ." | Ch ". $current_chapter->{chapter} ."]Error: Couldn't download page ". $i ."\n");
 				}
 			}
 
 			print "Download complete.\n";
 		}
 	} else {
-		logMsg("[". $manga ."]Error: Unable to GET '". $url ."'\n");
+		logMsg("[". $manga->{title} ."]Error: Unable to GET '". $url ."'\n");
 	}
 }
 
