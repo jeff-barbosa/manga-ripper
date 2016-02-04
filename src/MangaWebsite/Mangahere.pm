@@ -11,33 +11,6 @@ sub new {
 	return $self;
 }
 
-sub rip {
-	my ($self, $manga) = @_;
-	mkdir($main::download_folder.'/'.$manga->{title}) unless (-d $main::download_folder.'/'.$manga->{title});
-	my $url = $main::sites{mangahere} . $manga->{title};
-	my $response = $main::ua->get($url);
-	
-	if ($response) {
-		my @links = $main::ua->links();
-		my @manga_chapters = getChapterList(\@links, $manga->{title}, $url);
-		my $constraints = $self->SUPER::checkConstraints($manga->{ch_start}, $manga->{ch_end}, scalar(@manga_chapters));
-
-		# We have the links for the chapter and information from where to start and where to end
-		if (@manga_chapters) {
-			print "Found ". scalar(@manga_chapters) ." chapters\n";
-
-			# Rip each chapter
-			for (my $index = $constraints->{start}; $index < $constraints->{end}; $index++) {
-				ripChapter($manga_chapters[$index], $manga->{title});
-			}
-		} else {
-			logMsg("[". $manga->{title} ."] Error: No chapters found");
-		}
-	} else {
-		logMsg("[". $manga->{title} ."] Error: Unable to GET ". $url);
-	}
-}
-
 sub getChapterList {
 	my ($links, $title, $url) = @_;
 	my @manga_chapters;

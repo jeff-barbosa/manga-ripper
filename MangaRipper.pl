@@ -9,7 +9,8 @@ use FindBin qw($RealBin);
 use lib "$RealBin/src";
 
 use MangaWebsite::Mangahere;
-use Helper qw(logMsg);
+use MangaWebsite::TuMangaOnline;
+use Helper;
 
 my $filename = "manga_list.txt";
 our $download_folder = "downloads";
@@ -20,7 +21,8 @@ our $debug = 0;
 our $ua;
 our @mangas;
 our %sites = (
-	'mangahere' => 'http://www.mangahere.co/manga/'
+	'mangahere' => 'http://www.mangahere.co/manga/',
+	'tumangaonline' => 'http://www.tumangaonline.com/listado-mangas/manga/',
 );
 
 sub bootstrap {
@@ -37,22 +39,14 @@ sub bootstrap {
 	while (<$fh>) {
 		my ($manga_title, $start_chapter, $end_chapter) = undef;
 		next if ($_ =~ /^#/);
+
 		# Mangahere URL
 		if ($_ =~ /\(\Q$sites{mangahere}\E(.+)\/,\s*(\d*),\s*(\d*)\)/i) {
-			# Get the information
-			$manga_title = $1;
-			$start_chapter = ($2 - 1) if(defined($2) && $2 ne "");
-			$end_chapter = ($3 - 1) if (defined($3) && $3 ne "");
-
-			# Remove trailing slash
-			$manga_title = $1 if ($manga_title =~ /(.+)\/$/);
-
-			push(@mangas, { 
-				title => $manga_title, 
-				site => 'mangahere', 
-				ch_start => $start_chapter,
-				ch_end => $end_chapter
-			});
+			push(@mangas, getMangaInformation([$1], $2, $3, "mangahere"));
+		}
+		# TuMangaOnline URL
+		if ($_ =~ /\(\Q$sites{tumangaonline}\E(\d+)\/(.+),\s*(\d*),\s*(\d*)\)/i) {
+			push(@mangas, getMangaInformation([$1,$2], $3, $4, "tumangaonline"));
 		}
 	}
 	close($fh);
@@ -72,6 +66,9 @@ sub main {
 		print "Attempting to download: ". $manga->{title} ."\n";
 		if ($manga->{site} eq 'mangahere') {
 			$ripper = MangaWebsite::Mangahere->new();
+		}
+		elsif ($manga->{site} eq 'tumangaonline') {
+			$ripper = MangaWebsite::TuMangaOnline->new();
 		}
 
 		$ripper->rip($manga);
