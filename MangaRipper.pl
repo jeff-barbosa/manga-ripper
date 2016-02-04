@@ -4,6 +4,9 @@ package main;
 use strict;
 use warnings;
 use WWW::Mechanize;
+use FindBin qw($RealBin);
+
+use lib "$RealBin/src";
 
 use MangaWebsite::Mangahere;
 use Helper qw(logMsg);
