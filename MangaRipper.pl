@@ -8,8 +8,7 @@ use FindBin qw($RealBin);
 
 use lib "$RealBin/src";
 
-use MangaWebsite::Mangahere;
-use MangaWebsite::TuMangaOnline;
+use Ripper;
 use Helper;
 
 my $filename = "manga_list.txt";
@@ -65,21 +64,14 @@ sub main {
 	foreach my $manga (@mangas) {
 		print "Attempting to download: ". $manga->{title} ."\n";
 		if ($manga->{site} eq 'mangahere') {
-			$ripper = MangaWebsite::Mangahere->new();
+			$ripper = Ripper->new("MangaWebsite::Mangahere");
 		}
 		elsif ($manga->{site} eq 'tumangaonline') {
-			$ripper = MangaWebsite::TuMangaOnline->new();
+			$ripper = Ripper->new("MangaWebsite::TuMangaOnline");
 		}
 
 		$ripper->rip($manga);
 	}
-}
-
-# Receives a manga name and rips all the chapters to the download folder
-# It logs any error (missing chapter/pages) on the log file
-sub ripFromMangahere {
-	my $ripper = MangaWebsite::Mangahere->new();
-	$ripper->checkConstraints();
 }
 
 bootstrap();

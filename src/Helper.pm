@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Exporter 'import';
 
-our @EXPORT = qw(logMsg getMangaInformation);
+our @EXPORT = qw(logMsg logPage getMangaInformation);
 
 sub logMsg {
 	my $message = shift;
@@ -28,4 +28,12 @@ sub getMangaInformation {
 	$end = $end - 1 if (defined($end) && $end);
 
 	return { title => $title, relative_url => join('/',@$url), site => $website, ch_start => $start, ch_end => $end };
+}
+
+sub logPage {
+	my $response = shift;
+
+	open(my $fh, '>', 'page.html');
+	print $fh $response->decoded_content();
+	close($fh);
 }

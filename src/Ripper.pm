@@ -1,13 +1,15 @@
-package MangaWebsite;
+package Ripper;
 
 use strict;
 use warnings;
 
 use Helper;
+use MangaWebsite::TuMangaOnline;
+use MangaWebsite::Mangahere;
 
 sub new {
-	my $class = shift;
-	my $self = {};
+	my ($class, $mangaWebsite) = @_;
+	my $self = { mangaWebsite => $mangaWebsite->new() };
 	bless($self, $class);
 	return $self;
 }
@@ -16,14 +18,11 @@ sub rip {
 	my ($self, $manga) = @_;
 	mkdir($main::download_folder.'/'.$manga->{title}) unless (-d $main::download_folder.'/'.$manga->{title});
 	my $url = $main::sites{ $manga->{site} } . $manga->{relative_url};
-	print "D: ". $url ."\n";
 	my $response = $main::ua->get($url);
 	
 	if ($response) {
-		print "Querying chapter list...\n";
-
 		my @links = $main::ua->links();
-		my @manga_chapters = getChapterList(\@links, $manga->{title}, $url);
+		my @manga_chapters = $self->{mangaWebsite}->getChapterList(\@links, $response, $manga->{title}, $url);
 		my $constraints = checkConstraints($manga->{ch_start}, $manga->{ch_end}, scalar(@manga_chapters));
 
 		# We have the links for the chapter and information from where to start and where to end
@@ -32,7 +31,7 @@ sub rip {
 
 			# Rip each chapter
 			for (my $index = $constraints->{start}; $index < $constraints->{end}; $index++) {
-				ripChapter($manga_chapters[$index], $manga->{title});
+				$self->{mangaWebsite}->ripChapter($manga_chapters[$index], $manga->{title});
 			}
 		} else {
 			logMsg("[". $manga->{title} ."] Error: No chapters found");
@@ -44,7 +43,7 @@ sub rip {
 
 # Check constraints (such as starting chapter, ending chapter, etc)
 sub checkConstraints {
-	my (undef, $start, $end, $total) = @_;
+	my ($start, $end, $total) = @_;
 
 	# Default setup
 	$start = 0 unless(defined($start) && $start);

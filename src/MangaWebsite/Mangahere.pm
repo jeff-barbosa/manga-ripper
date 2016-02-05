@@ -2,17 +2,16 @@ package MangaWebsite::Mangahere;
 
 use strict;
 use warnings;
-use parent 'MangaWebsite';
+
 use Helper qw(logMsg);
 
 sub new {
 	my $class = shift;
-	my $self = $class->SUPER::new($class);
-	return $self;
+	return bless({}, $class);
 }
 
 sub getChapterList {
-	my ($links, $title, $url) = @_;
+	my ($self, $links, $http_response, $title, $url) = @_;
 	my @manga_chapters;
 	my $seen_chapter;
 
@@ -31,7 +30,7 @@ sub getChapterList {
 }
 
 sub ripChapter {
-	my ($manga_chapter, $manga_title) = @_;
+	my ($self, $manga_chapter, $manga_title) = @_;
 
 	my $chapter_folder = $main::download_folder.'/'.$manga_title.'/'.$manga_chapter->{chapter};
 	mkdir($chapter_folder) unless (-d $chapter_folder);
@@ -65,14 +64,14 @@ sub ripChapter {
 				close($fh);
 
 			} else {
-				logMsg("[". $manga_title ." | Ch ". $manga_chapter->{chapter} ."]Error: Couldn't find image on ". $page ." page link\n");
+				logMsg("[". $manga_title ." | Ch ". $manga_chapter->{chapter} ."]Error: Couldn't find image on ". $page ." page link");
 			}
 		} else {
 			logMsg("[". $manga_title ." | Ch ". $manga_chapter->{chapter} ."]Error: Couldn't download page ". $page);
 		}
 	}
 
-	print "Download complete";
+	print "Download complete\n";
 }
 
 1;
