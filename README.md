@@ -4,6 +4,7 @@ A Perl script to download mangas from popular manga websites
 ### Current websites supported
 * [MangaHere](http://www.mangahere.co/) (english)
 * [TuMangaOnline](http://www.tumangaonline.com/) (spanish)
+* [LerManga](http://lermangas.com/) (portuguese)
 
 ### Installation
 
