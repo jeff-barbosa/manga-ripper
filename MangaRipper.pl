@@ -49,7 +49,7 @@ sub bootstrap {
 			push(@mangas, getMangaInformation([$1,$2], $3, $4, "tumangaonline"));
 		}
 		# LerManga URL
-		if ($_ =~ /\(\Q$sites{lermanga}\E(.+)\/,\s*(\d*),\*(\d*)\)/i) {
+		if ($_ =~ /\(\Q$sites{lermanga}\E(.+)\/,\s*(\d*),\s*(\d*)\)/i) {
 			push(@mangas, getMangaInformation([$1], $2, $3, "lermanga"));
 		}
 	}
