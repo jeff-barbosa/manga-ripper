@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Helper;
+use MangaWebsite::LerManga;
 use MangaWebsite::TuMangaOnline;
 use MangaWebsite::Mangahere;
 

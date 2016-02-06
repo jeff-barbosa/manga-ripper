@@ -22,6 +22,7 @@ our @mangas;
 our %sites = (
 	'mangahere' => 'http://www.mangahere.co/manga/',
 	'tumangaonline' => 'http://www.tumangaonline.com/listado-mangas/manga/',
+	'lermanga' => 'http://lermangas.com/manga/',
 );
 
 sub bootstrap {
@@ -47,6 +48,10 @@ sub bootstrap {
 		if ($_ =~ /\(\Q$sites{tumangaonline}\E(\d+)\/(.+),\s*(\d*),\s*(\d*)\)/i) {
 			push(@mangas, getMangaInformation([$1,$2], $3, $4, "tumangaonline"));
 		}
+		# LerManga URL
+		if ($_ =~ /\(\Q$sites{lermanga}\E(.+)\/,\s*(\d*),\s*(\d*)\)/i) {
+			push(@mangas, getMangaInformation([$1], $2, $3, "lermanga"));
+		}
 	}
 	close($fh);
 
@@ -68,6 +73,9 @@ sub main {
 		}
 		elsif ($manga->{site} eq 'tumangaonline') {
 			$ripper = Ripper->new("MangaWebsite::TuMangaOnline");
+		} 
+		elsif ($manga->{site} eq 'lermanga') {
+			$ripper = Ripper->new("MangaWebsite::LerManga");
 		}
 
 		$ripper->rip($manga);
