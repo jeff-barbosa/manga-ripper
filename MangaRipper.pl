@@ -20,9 +20,9 @@ our $debug = 0;
 our $ua;
 our @mangas;
 our %sites = (
-	'mangahere' => 'http://www.mangahere.co/manga/',
-	'tumangaonline' => 'http://www.tumangaonline.com/listado-mangas/manga/',
-	'lermanga' => 'http://lermangas.com/manga/',
+	'Mangahere' => 'http://www.mangahere.co/manga/',
+	'TuMangaOnline' => 'http://www.tumangaonline.com/listado-mangas/manga/',
+	'LerManga' => 'http://lermangas.com/manga/',
 );
 
 sub bootstrap {
@@ -41,16 +41,16 @@ sub bootstrap {
 		next if ($_ =~ /^#/);
 
 		# Mangahere URL
-		if ($_ =~ /\(\Q$sites{mangahere}\E(.+)\/,\s*(\d*),\s*(\d*)\)/i) {
-			push(@mangas, getMangaInformation([$1], $2, $3, "mangahere"));
+		if ($_ =~ /\(\Q$sites{Mangahere}\E(.+)\/,\s*(\d*),\s*(\d*)\)/i) {
+			push(@mangas, getMangaInformation([$1], $2, $3, "Mangahere"));
 		}
 		# TuMangaOnline URL
-		if ($_ =~ /\(\Q$sites{tumangaonline}\E(\d+)\/(.+),\s*(\d*),\s*(\d*)\)/i) {
-			push(@mangas, getMangaInformation([$1,$2], $3, $4, "tumangaonline"));
+		if ($_ =~ /\(\Q$sites{TuMangaOnline}\E(\d+)\/(.+),\s*(\d*),\s*(\d*)\)/i) {
+			push(@mangas, getMangaInformation([$1,$2], $3, $4, "TuMangaOnline"));
 		}
 		# LerManga URL
-		if ($_ =~ /\(\Q$sites{lermanga}\E(.+)\/,\s*(\d*),\s*(\d*)\)/i) {
-			push(@mangas, getMangaInformation([$1], $2, $3, "lermanga"));
+		if ($_ =~ /\(\Q$sites{LerManga}\E(.+)\/,\s*(\d*),\s*(\d*)\)/i) {
+			push(@mangas, getMangaInformation([$1], $2, $3, "LerManga"));
 		}
 	}
 	close($fh);
@@ -68,16 +68,8 @@ sub main {
 
 	foreach my $manga (@mangas) {
 		print "Attempting to download: ". $manga->{title} ."\n";
-		if ($manga->{site} eq 'mangahere') {
-			$ripper = Ripper->new("MangaWebsite::Mangahere");
-		}
-		elsif ($manga->{site} eq 'tumangaonline') {
-			$ripper = Ripper->new("MangaWebsite::TuMangaOnline");
-		} 
-		elsif ($manga->{site} eq 'lermanga') {
-			$ripper = Ripper->new("MangaWebsite::LerManga");
-		}
 
+		$ripper = Ripper->new("MangaWebsite::". $manga->{site});
 		$ripper->rip($manga);
 	}
 }
