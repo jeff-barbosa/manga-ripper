@@ -1,6 +1,8 @@
 # MangaRipper
 A Perl script to download mangas from popular manga websites
 
+**This project is no longer supported**
+
 ### Current websites supported
 * [MangaHere](http://www.mangahere.co/) (english)
 * [TuMangaOnline](http://www.tumangaonline.com/) (spanish)
